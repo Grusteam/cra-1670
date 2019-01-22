@@ -2,9 +2,11 @@
   "name": "cra",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://uniquite.net/image-crop/",
   "dependencies": {
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
+    "react-image-cropper": "^1.3.0",
     "react-scripts": "2.1.3"
   },
   "scripts": {

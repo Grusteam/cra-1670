@@ -1,28 +1,47 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
+import { Cropper } from 'react-image-cropper';
+import {
+	downloadBase64File,
+	base64StringtoFile,
+	extractImageFileExtensionFromBase64,
+	image64toCanvasRef,
+} from './Utils';
 
 class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
-    );
-  }
+	constructor() {
+		super();
+		this.onClick = this.onClick.bind(this);
+	}
+	componentDidMount() {
+	}
+
+	onClick(e) {
+			const
+				values = this.cropper.values(),
+				Base64 = this.cropper.crop(),
+				extention = extractImageFileExtensionFromBase64(Base64),
+				{ canvas } = this.refs,
+				fileName = `name.${extention}`,
+				file = base64StringtoFile(Base64, fileName);
+
+			downloadBase64File(Base64, fileName);
+
+			console.log('file', file);
+	}
+
+	render() {
+		return (
+			<div className="App">
+				<Cropper 
+						src="sample.jpg" 
+						ref={ ref => { this.cropper = ref }}
+				/>
+				<button onClick={this.onClick}>Click</button>
+				<canvas ref="canvas"></canvas>
+			</div>
+		);
+	}
 }
 
 export default App;
