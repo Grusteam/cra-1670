@@ -1,0 +1,17 @@
+.Crop {
+  display: flex;
+  flex-direction: column;
+
+}
+
+.download {
+  height: 50px;
+  background: none;
+  background-color: #999;
+  border:none;
+}
+
+.canvas {
+  width: 0;
+  height: 0;
+}
