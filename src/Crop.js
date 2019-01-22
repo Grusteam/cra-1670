@@ -34,6 +34,7 @@ class Crop extends Component {
 		this.onImageLoaded = this.onImageLoaded.bind(this);
 		this.onComplete = this.onComplete.bind(this);
 		this.verifyFiles = this.verifyFiles.bind(this);
+		this.onDownloadClick = this.onDownloadClick.bind(this);
 	}
 
 	verifyFiles = (files) => {
@@ -104,16 +105,23 @@ class Crop extends Component {
 			{ imagePath } = this.state;
 
 		image64toCanvasRef(canvas, imagePath, pixelCrop);
+	}
 
-		const x = downloadBase64File(imagePath, 'name');
+	onDownloadClick(e) {
+		const
+			{ canvas } = this.refs,
+			{ imagePath } = this.state,
+			fileName = `name.${extractImageFileExtensionFromBase64(imagePath)}`,
+			canvasData = canvas.toDataURL(fileName),
+			file = downloadBase64File(canvasData, fileName);
 
-		console.log('x', x);
-		console.log('imagePath, pixelCrop', imagePath, pixelCrop);
-		// console.log('crop, pixelCrop', crop, pixelCrop);
+		console.log('file', file);
 	}
 
 	render() {
 		const { crop, imagePath } = this.state;
+
+		console.log('crop, imagePath', crop, imagePath);
 
 		return (
 			<div className="Crop">
@@ -130,6 +138,7 @@ class Crop extends Component {
 						<input type="file" onChange={this.onInputChange} />
 				}
 				<canvas ref="canvas" width="0" height="0"></canvas>
+				<button onClick={this.onDownloadClick}>Download</button>
 			</div>
 		);
 	}
