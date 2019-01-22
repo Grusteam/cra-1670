@@ -65,7 +65,6 @@ class Crop extends Component {
 	}
 
 	onComplete(crop, pixelCrop) {
-		console.log('pixelCrop', pixelCrop);
 		const
 			{ canvas } = this.refs,
 			{ imagePath } = this.state;
@@ -75,8 +74,6 @@ class Crop extends Component {
 
 	render() {
 		const { crop, imagePath } = this.state;
-
-		console.log('crop', crop);
 
 		return (
 			<div className="Crop">
