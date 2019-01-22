@@ -2,22 +2,35 @@ import React, { Component } from 'react';
 import './Crop.css';
 
 import ReactCrop from 'react-image-crop';
+import './custom-image-crop.css';
+
+import {base64StringtoFile,
+    downloadBase64File,
+    extractImageFileExtensionFromBase64,
+    image64toCanvasRef
+} from './Utils'
 
 class Crop extends Component {
 	constructor() {
 		super();
 
 		this.state = {
+			crop: {
+				// aspect: 1/1
+			},
 			imagePath: null,
 		};
+
 		
 		/* this */
 		this.onCropChange = this.onCropChange.bind(this);
 		this.onInputChange = this.onInputChange.bind(this);
+		this.onImageLoaded = this.onImageLoaded.bind(this);
+		this.onComplete = this.onComplete.bind(this);
 	}
 	
-	onCropChange(e) {
-
+	onCropChange(crop) {
+        this.setState({crop})
 	}
 	
 	onInputChange(e) {
@@ -34,7 +47,7 @@ class Crop extends Component {
 
 				this.setState({
 					imagePath
-				})
+				});
 			};
 			
 			reader.onerror = e => {
@@ -47,15 +60,39 @@ class Crop extends Component {
 		// console.log('target, value, files', target, value, files);
 	}
 
+	onImageLoaded(e) {
+		console.log('onImageLoaded');
+	}
+
+	onComplete(crop, pixelCrop) {
+		console.log('pixelCrop', pixelCrop);
+		const
+			{ canvas } = this.refs,
+			{ imagePath } = this.state;
+
+		image64toCanvasRef(canvas, imagePath, pixelCrop)
+	}
+
 	render() {
-		const { imagePath } = this.state;
-		console.log('imagePath', imagePath);
+		const { crop, imagePath } = this.state;
+
+		console.log('crop', crop);
 
 		return (
 			<div className="Crop">
-				<input type="file" onChange={this.onInputChange} />
 				{/*  imagePath && <img src='dog.png' />  */}
-				{imagePath && <ReactCrop src={imagePath} onChange={this.onCropChange}/>}
+				{
+					imagePath ?
+						<ReactCrop
+							src={imagePath}
+							onChange={this.onCropChange}
+							crop={crop} 
+							onImageLoaded={this.onImageLoaded}
+							onComplete = {this.onComplete}
+						/> :
+						<input type="file" onChange={this.onInputChange} />
+				}
+				<canvas ref="canvas" width="0" height="0"></canvas>
 			</div>
 		);
 	}
