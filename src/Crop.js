@@ -22,12 +22,45 @@ class Crop extends Component {
 		};
 
 		
+		this.extremums = {
+			imageMaxSize: 1000000000, /* bytes */
+			fileTypes: ['x-png', 'png', 'jpg', 'jpeg', 'gif'],
+		};
+		
+
 		/* this */
 		this.onCropChange = this.onCropChange.bind(this);
 		this.onInputChange = this.onInputChange.bind(this);
 		this.onImageLoaded = this.onImageLoaded.bind(this);
 		this.onComplete = this.onComplete.bind(this);
+		this.verifyFiles = this.verifyFiles.bind(this);
 	}
+
+	verifyFiles = (files) => {
+        if (files && files.length > 0){
+            const
+				currentFile = files[0],
+				currentFileType = currentFile.type,
+				shortenFileType = currentFile.type.split('image/')[1],
+				currentFileSize = currentFile.size;
+
+			console.log('shortenFileType', shortenFileType);
+
+            if (currentFileSize > this.imageMaxSize) {
+                alert("This file is not allowed. " + currentFileSize + " bytes is too large")
+                return false;
+            }
+
+			console.log('currentFileType', currentFileType);
+
+            if (!this.extremums.fileTypes.includes(shortenFileType)){
+                alert("This file is not allowed. Only images are allowed.")
+                return false;
+            }
+
+            return true;
+        }
+    }
 	
 	onCropChange(crop) {
         this.setState({crop})
@@ -39,7 +72,8 @@ class Crop extends Component {
 			{ value, files } = target,
 			file = files[0];
 
-		if (file) {
+
+		if (this.verifyFiles(files)) {
 			const reader = new FileReader();
 
 			reader.onload = e => {
@@ -69,7 +103,13 @@ class Crop extends Component {
 			{ canvas } = this.refs,
 			{ imagePath } = this.state;
 
-		image64toCanvasRef(canvas, imagePath, pixelCrop)
+		image64toCanvasRef(canvas, imagePath, pixelCrop);
+
+		const x = downloadBase64File(imagePath, 'name');
+
+		console.log('x', x);
+		console.log('imagePath, pixelCrop', imagePath, pixelCrop);
+		// console.log('crop, pixelCrop', crop, pixelCrop);
 	}
 
 	render() {
