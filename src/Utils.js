@@ -1,4 +1,33 @@
 export const
+    _console = (text = '', timeout = 2000) => {
+        const
+            _body = document.body || document.getElementsByTagName('body')[0],
+            msg = document.createElement('div');
+            
+        /* styles> */
+        const styles = {
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                bottom: 0,
+                right: 0,
+                'background-color': 'rgba(0, 0, 0, 0.5)',
+                'z-index': 999999,
+                color: '#fff',
+            };
+
+        for (const [key, val] of Object.entries(styles)) {
+            msg.style[key] = val;
+        }
+        /* <styles */
+
+        msg.textContent = text;
+        const node = _body.appendChild(msg);
+
+        setTimeout(() => {
+            node.remove();
+        }, timeout);
+    },
     downloadBase64File = (base64Data, filename) => {
         const element = document.createElement('a');
 

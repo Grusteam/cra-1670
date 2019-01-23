@@ -5,7 +5,7 @@ import Crop from './Crop';
 
 class App extends Component {
   render() {
-    return <Crop/>;
+    return <Crop test="test_1"/>;
   }
 }
 

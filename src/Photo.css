@@ -1,0 +1,17 @@
+.root {
+    position: relative;
+}
+
+.btn {
+    position: relative;
+    top: 5px;
+}
+
+.btn--move {
+    right: 0;
+}
+
+
+.btn--del {
+    right: 50;
+}
