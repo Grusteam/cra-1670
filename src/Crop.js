@@ -57,6 +57,7 @@ class Crop extends Component {
 		this.onFinishEditingClick = this.onFinishEditingClick.bind(this);
 		this.addImage = this.addImage.bind(this);
 		this.showPopup = this.showPopup.bind(this);
+		this.onCancelEditingClick = this.onCancelEditingClick.bind(this);
 	}
 	
 	/* ... . .-. --. . / --.. .... ..- .-. .- ...- .-.. . ...- */
@@ -141,6 +142,10 @@ class Crop extends Component {
 
 	/* после получения изображения редактором */
 	onImageLoaded(image, pixelCrop) {
+		const
+			{ background, } = this.refs,
+			{ width, height } = pixelCrop;
+
 		this.onComplete(null, pixelCrop);
 		// console.log('image, pixelCrop', image, pixelCrop);
 	}
@@ -190,6 +195,12 @@ class Crop extends Component {
 
 	addImage(src) {
 		// const { gallery } = this.refs;
+	}
+
+	onCancelEditingClick(e) {
+		this.setState({
+			showPopup: false,
+		});
 	}
 
 	/* конец редактированиия одной фотографии */
@@ -254,25 +265,31 @@ class Crop extends Component {
 				})}
 				
 				<div className="gallery" ref="gallery"></div>
-					{showPopup &&
-						<div className="popup">
-							<ReactCrop
-								src={imagePath}
-								onChange={this.onCropChange}
-								crop={crop} 
-								onImageLoaded={this.onImageLoaded}
-								onComplete = {this.onComplete}
-							/>
-							<button className="finish-editing" onClick={this.onFinishEditingClick}>Finish editing</button>
+						<div className={`popup ${showPopup ? 'is-active' : ''}`}>
+							<div className="background" ref="background">
+								{showPopup && <ReactCrop
+									src={imagePath}
+									onChange={this.onCropChange}
+									crop={crop} 
+									onImageLoaded={this.onImageLoaded}
+									onComplete = {this.onComplete}
+								/>}
+								<div className="wrapper">
+									<button ref="finish" className="finish-editing" onClick={this.onFinishEditingClick}>Finish editing</button>
+									<button ref="cancel" className="cancel-editing" onClick={this.onCancelEditingClick}>cancel editing</button>
+								</div>
+							</div>
 						</div>		
-					}
-						<input
-							accept={this.parameters.acceptMime}
-							type="file"
-							onChange={this.onInputChange}
-							multiple={true}
-							className="file-input"
-						/>
+						<div className="input-wrapper">
+							<input
+								accept={this.parameters.acceptMime}
+								type="file"
+								onChange={this.onInputChange}
+								multiple={true}
+								className="input-wrapper__input"
+							/>
+							<div className="input-wrapper__field">загрузить фото</div>
+						</div>
 				<canvas ref="canvas" style={{display:'none'}} width="0" height="0"></canvas>
 				{/* <div className="console"></div> */}
 			</div>

@@ -1,4 +1,5 @@
 .popup {
+    opacity: 0;
     position: absolute;
     top: 0;
     left: 0;
@@ -10,10 +11,32 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+
+}
+    .popup.is-active {
+        opacity: 1;
+    }
+
+.background {
+    padding: 20px;
+    background-color: #fff;
+
+    display: flex;
+    // justify-content: space-around;
+    flex-direction: column;
+    align-items: center;
 }
 
-.finish-editing {
-    margin-top: 20px;
+.wrapper {
+    margin: 10px 0 0 0;
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+}
+
+.finish-editing,
+.cancel-editing {
+    border: none;
 }
 
 .console {
@@ -26,6 +49,30 @@
     z-index: 999999;
 }
 
-.file-input {
+.input-wrapper {
+    width: 200px;
+    height: 50px;
+    background-color: #bbb;
+    position: relative;
+}
     
+.input-wrapper__input,
+.input-wrapper__field {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 200px;
+    height: 50px;
+}
+
+.input-wrapper__input {
+    opacity: 0;
+}
+
+.input-wrapper__field {
+    pointer-events: none;
+    line-height: 50px;
+    text-align: center;  
 }
