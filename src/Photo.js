@@ -26,10 +26,10 @@ class Photo extends Component {
 		const { image: { src } } = this.props;
 
 		return (
-			<div className="root">
+			<div className="photo">
 				<img src={src} alt=''/>
-				<button className="btn btn--move" onClick={this.onMoveToList}>Move</button>
-				<button className="btn btn--del" onClick={this.onDelete}>Del</button>
+				{/* <button className="btn btn--move" onClick={this.onMoveToList}>Move</button> */}
+				{/* <button className="btn btn--del" onClick={this.onDelete}>Del</button> */}
 			</div>
 		);
 	}
