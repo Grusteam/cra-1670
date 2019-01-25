@@ -355,6 +355,16 @@ class Crop extends Component {
 				</div>
 				
 				<div className="gallery" ref="gallery"></div>
+						<div className="input-wrapper">
+							<input
+								accept={this.parameters.acceptMime}
+								type="file"
+								onChange={this.onInputChange}
+								multiple={true}
+								className="input-wrapper__input"
+							/>
+							<div className="input-wrapper__field">Перетащите сюда файлы для добавления или нажмите для выбора</div>
+						</div>
 						<div className={`popup ${showPopup ? 'is-active' : ''}`}>
 							<div className="background" ref="background">
 								{showPopup && <ReactCrop
@@ -369,16 +379,6 @@ class Crop extends Component {
 									<button ref="cancel" className="cancel-editing" onClick={this.onCancelEditingClick}>cancel editing</button>
 								</div>
 							</div>
-						</div>		
-						<div className="input-wrapper">
-							<input
-								accept={this.parameters.acceptMime}
-								type="file"
-								onChange={this.onInputChange}
-								multiple={true}
-								className="input-wrapper__input"
-							/>
-							<div className="input-wrapper__field">Перетащите сюда файлы для добавления или нажмите для выбора</div>
 						</div>
 				<canvas ref="canvas" style={{display:'none'}} width="0" height="0"></canvas>
 				<button ref="sendAll" className="send" onClick={this.sendAll}>send all</button>

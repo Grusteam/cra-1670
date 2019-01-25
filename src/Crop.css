@@ -16,12 +16,12 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-
 }
-    .popup.is-active {
-        opacity: 1;
-        pointer-events: auto;
-    }
+
+.popup.is-active {
+    opacity: 1;
+    pointer-events: auto;
+}
 
 .background {
     padding: 20px;
