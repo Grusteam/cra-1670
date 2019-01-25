@@ -23,11 +23,11 @@ class Photo extends Component {
 	}
 
 	render() {
-		const { image: { src } } = this.props;
+		const { image: { src }, onClick } = this.props;
 
 		return (
 			<div className="photo">
-				<img src={src} alt=''/>
+				<img className="image" src={src} onClick={onClick} alt=''/>
 				{/* <button className="btn btn--move" onClick={this.onMoveToList}>Move</button> */}
 				{/* <button className="btn btn--del" onClick={this.onDelete}>Del</button> */}
 			</div>

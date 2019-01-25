@@ -2,6 +2,10 @@
     position: relative;
 }
 
+.image {
+    height: 100px;
+}
+
 .btn {
     position: relative;
     top: 5px;

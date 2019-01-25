@@ -1,3 +1,7 @@
+.photos {
+    display: flex;
+}
+
 .popup {
     opacity: 0;
     position: absolute;
@@ -6,6 +10,7 @@
     bottom: 0;
     right: 0;
     background-color: rgba(0, 0, 0, 0.5);
+    pointer-events: none;
 
     display: flex;
     flex-direction: column;
@@ -15,6 +20,7 @@
 }
     .popup.is-active {
         opacity: 1;
+        pointer-events: auto;
     }
 
 .background {
@@ -50,29 +56,38 @@
 }
 
 .input-wrapper {
-    width: 200px;
-    height: 50px;
-    background-color: #bbb;
     position: relative;
+
+    text-align: center;
+    line-height: 20px;
+    border: 2px dashed #4da1ff;
+    border-radius: 3px;
+
+    width: 480px;
+    height: 100px;
 }
     
 .input-wrapper__input,
 .input-wrapper__field {
     position: absolute;
+
     top: 0;
     bottom: 0;
     left: 0;
     right: 0;
-    width: 200px;
-    height: 50px;
 }
 
 .input-wrapper__input {
     opacity: 0;
+    width: 100%;
 }
 
 .input-wrapper__field {
     pointer-events: none;
-    line-height: 50px;
-    text-align: center;  
+    text-align: center; 
+
+    padding: 0 125px;
+    align-items: center;
+    justify-content: center;
+    flex: 0 1 100%; 
 }
