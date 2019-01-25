@@ -258,10 +258,12 @@ class Crop extends Component {
 	}
 
 	/* отмена редактирования */
-	onCancelEditingClick(e) {
-		this.setState({
-			showPopup: false,
-		});
+	onCancelEditingClick({ target: { dataset: { role } }, currentTarget }) {
+		if (role === 'close') {
+			this.setState({
+				showPopup: false,
+			});
+		}
 	}
 
 	makeFormData() {
@@ -365,7 +367,7 @@ class Crop extends Component {
 							/>
 							<div className="input-wrapper__field">Перетащите сюда файлы для добавления или нажмите для выбора</div>
 						</div>
-						<div className={`popup ${showPopup ? 'is-active' : ''}`}>
+						<div className={`popup ${showPopup ? 'is-active' : ''}`} data-role='close' onClick={this.onCancelEditingClick}>
 							<div className="background" ref="background">
 								{showPopup && <ReactCrop
 									src={ReactCropImageSrc}
@@ -376,7 +378,7 @@ class Crop extends Component {
 								/>}
 								<div className="wrapper">
 									<button ref="finish" className="finish-editing" onClick={this.onFinishEditingClick}>Finish editing</button>
-									<button ref="cancel" className="cancel-editing" onClick={this.onCancelEditingClick}>cancel editing</button>
+									<button ref="cancel" className="cancel-editing" data-role='close'>cancel editing</button>
 								</div>
 							</div>
 						</div>

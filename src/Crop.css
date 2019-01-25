@@ -43,6 +43,7 @@
 .finish-editing,
 .cancel-editing {
     border: none;
+    cursor: pointer;
 }
 
 .console {
