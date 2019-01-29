@@ -23,7 +23,7 @@ class Photo extends Component {
 	}
 
 	render() {
-		const { image: { src }, onClick } = this.props;
+		const { src, onClick } = this.props;
 
 		return (
 			<div className="photo">

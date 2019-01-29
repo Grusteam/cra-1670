@@ -166,16 +166,32 @@ class Crop extends Component {
 	/* после открытия файла */
 	onInputChange(e) {
 		const
+			{ state } = this,
 			{ target } = e,
-			{ /* value, */ files } = target,
-			file = files[0];
+			{ /* value, */ files } = target;
+
+			// file = files[0];
 
 		// console.log('files', files);
 
 		if (this.verifyFiles(files)) {
 			/* вытыщим base64 картинку и кинем ее в колбэк */
 			/* this.getBase64FromFile(file, this.showPopup); */
-			this.getBase64FromFile(file, this.pushToPhotos);
+			const
+				rawData = [],
+				collectRawData = (base64, index) => {
+					rawData.push(base64);
+
+					if (index === files.length - 1) {
+						this.setState({
+							photos: [...state.photos, ...rawData],
+						});
+
+						/* this.pushToPhotos(...rawData); */
+					}
+				};
+
+			this.getBase64FromFile(Array.from(files), collectRawData);
 		}
 
 		// console.log('target, value, files', target, value, files);
@@ -191,22 +207,24 @@ class Crop extends Component {
 	}
 
 	/* base64 */
-	getBase64FromFile(file, callback) {
-		const reader = new window.FileReader();
+	getBase64FromFile(files, callback) {
+		files.forEach((file, index) => {
+			const reader = new window.FileReader();
 
-		/* onload */
-		reader.onload = e => {
-			const base64 = e.target.result;
+			/* onload */
+			reader.onload = e => {
+				const base64 = e.target.result;
+				
+				callback(base64, index);
+			};
 			
-			callback(base64);
-		};
-		
-		/* onerror */
-		reader.onerror = e => {
-			console.error("Файл не может быть прочитан! код " + e.target.error.code);
-		};
-		
-		reader.readAsDataURL(file);
+			/* onerror */
+			reader.onerror = e => {
+				console.error("Файл не может быть прочитан! код " + e.target.error.code);
+			};
+			
+			reader.readAsDataURL(file);
+		});
 	}
 
 	/* после получения изображения редактором */
@@ -310,12 +328,12 @@ class Crop extends Component {
 
 		const 
 			pre = photos.slice(0, editedPhotoIndex),
-			newPhoto = { src: canvasData }, //current
+			// newPhoto = { src: canvasData }, //current
 			post = photos.slice(editedPhotoIndex + 1);
 
 		this.setState({
 			// photos: [...this.state.photos, newPhoto],
-			photos: [...pre, newPhoto, ...post],
+			photos: [...pre, canvasData, ...post],
 			showPopup: false,
 			crop: {
 				...this.cropFull,
@@ -329,32 +347,36 @@ class Crop extends Component {
 	onPhotoClick(index, e) {
 		const
 			// { target } = e,
-			{ photos } = this.state,
-			imageStateObj = photos[index],
-			{ src } = imageStateObj;
+			{ state, showPopup } = this,
+			{ photos } = state,
+			src = photos[index];
+			// { src } = imageStateObj;
 
-		this.showPopup(src, index);
+		showPopup(src, index);
 	}
 
 	sendAll(e) {
 		let photosShortStr = '';
 
 		const
+			{ state, refs } = this,
 			preLen = 30,
 			postLen = 20,
-			{ state, refs } = this,
 			{ output } = refs,
-			{ photos } = state,
-			photosShortArr = photos.map(({ src }) => {
-				const
-					pre = src.substring(0, preLen),
-					post = src.substring(src.length - postLen, src.length - 1),
-					short = `&nbsp&nbsp&nbsp&nbsp${pre}...${post},</br>`;
-					photosShortStr += short;
+			{ photos } = state;
 
-				return short;
-			}),
-			result = `[<br/>${photosShortStr}]`;
+		photos.forEach(src => {
+			const
+				pre = src.substring(0, preLen),
+				post = src.substring(src.length - postLen, src.length - 1),
+				short = `&nbsp&nbsp&nbsp&nbsp${pre}...${post},</br>`;
+			
+			photosShortStr += short;
+
+			return short;
+		});
+
+		const result = `[<br/>${photosShortStr}]`;
 
 		output.innerHTML = result;
 	}
@@ -385,12 +407,10 @@ class Crop extends Component {
 		
 				{/* отредактированные фото */}
 				<div className="photos">
-					{photos.map((image, i) => {
-						// const { src } = image;
-
+					{photos.map((src, i) => {
 						return (
 							<Photo
-								image={image}
+								src={src}
 								key={i}
 								onClick={(...all) => this.onPhotoClick(i, ...all)}
 							/>
