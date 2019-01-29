@@ -74,7 +74,8 @@
 }
 
 .finish-editing,
-.cancel-editing {
+.cancel-editing,
+.send {
     border: none;
     cursor: pointer;
     background: none;
@@ -160,4 +161,8 @@
     width: 240px;
     font-size: 12px;
     text-align: center;
+}
+
+.output {
+    word-break: break-all;
 }

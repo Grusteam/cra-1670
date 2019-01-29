@@ -267,8 +267,12 @@ class Crop extends Component {
 	}
 
 	/* отмена редактирования */
-	onCancelEditingClick({ target: { dataset: { role } }, currentTarget }) {
-		if (role === 'close') {
+	onCancelEditingClick({ type, target: { dataset: { role } }, currentTarget }) {
+		const
+			cancelClick = role === 'close-click' && type === 'click',
+			backgroundDown = role === 'close-down' && type === 'mousedown';
+
+		if (cancelClick || backgroundDown) {
 			this.setState({
 				showPopup: false,
 			});
@@ -298,10 +302,11 @@ class Crop extends Component {
 		const
 			{ canvas } = this.refs,
 			{ ReactCropImageSrc, photos, editedPhotoIndex } = this.state,
-			fileName = `name.${extractImageFileExtensionFromBase64(ReactCropImageSrc)}`,
-			canvasData = canvas.toDataURL(fileName);
+			extension = extractImageFileExtensionFromBase64(ReactCropImageSrc),
+			mime = `image/${extension}`,
+			canvasData = canvas.toDataURL(mime);
 
-			// file = this.dataURItoBlob(canvasData);
+		// const file = this.dataURItoBlob(canvasData);
 
 		const 
 			pre = photos.slice(0, editedPhotoIndex),
@@ -332,10 +337,26 @@ class Crop extends Component {
 	}
 
 	sendAll(e) {
+		let photosShortStr = '';
+
 		const
-			{ photos } = this.state;
-		
-		console.log('photos', photos);
+			preLen = 30,
+			postLen = 20,
+			{ state, refs } = this,
+			{ output } = refs,
+			{ photos } = state,
+			photosShortArr = photos.map(({ src }) => {
+				const
+					pre = src.substring(0, preLen),
+					post = src.substring(src.length - postLen, src.length - 1),
+					short = `&nbsp&nbsp&nbsp&nbsp${pre}...${post},</br>`;
+					photosShortStr += short;
+
+				return short;
+			}),
+			result = `[<br/>${photosShortStr}]`;
+
+		output.innerHTML = result;
 	}
 
 	/* ... . .-. --. . / --.. .... ..- .-. .- ...- .-.. . ...- */
@@ -394,34 +415,38 @@ class Crop extends Component {
 				</div>
 				
 				{/* popup */}
-				<div className={`popup ${showPopup ? 'is-active' : ''}`} data-role='close' onClick={this.onCancelEditingClick}>
-							<div className="background" ref="background">
-								{showPopup && <ReactCrop
-									src={ReactCropImageSrc}
-									onChange={this.onCropChange}
-									crop={crop} 
-									onImageLoaded={this.onImageLoaded}
-									onComplete={this.onComplete}
-									imageStyle={{
-										maxHeight: '600px',
-										maxWidth: '800px',
-									}}
-								/>}
-								<div className="wrapper">
-									<button ref="finish" className="finish-editing" onClick={this.onFinishEditingClick}>Сохранить</button>
-									<button ref="cancel" className="cancel-editing" data-role='close'>Отменить</button>
-									<div className="aspect">
-										<input type="checkbox" id="aspect-ratio" onChange={this.onAspectRatioFixChange}></input>
-										<label htmlFor="aspect-ratio">Пропорции 1:1</label>
-									</div>
-								</div>
+				<div className={`popup ${showPopup ? 'is-active' : ''}`} data-role='close-down' onMouseDown={this.onCancelEditingClick}>
+					<div className="background" ref="background">
+						{showPopup && <ReactCrop
+							src={ReactCropImageSrc}
+							onChange={this.onCropChange}
+							crop={crop} 
+							onImageLoaded={this.onImageLoaded}
+							onComplete={this.onComplete}
+							imageStyle={{
+								maxHeight: '600px',
+								maxWidth: '800px',
+							}}
+						/>}
+						<div className="wrapper">
+							<button ref="finish" className="finish-editing" onClick={this.onFinishEditingClick}>Сохранить</button>
+							<button ref="cancel" className="cancel-editing" data-role='close-click' onClick={this.onCancelEditingClick}>Отменить</button>
+							<div className="aspect">
+								<input type="checkbox" id="aspect-ratio" onChange={this.onAspectRatioFixChange}></input>
+								<label htmlFor="aspect-ratio">Пропорции 1:1</label>
 							</div>
 						</div>
+					</div>
+				</div>
 				
 				{/* canvas - необходимый скрытый элемент */}
 				<canvas ref="canvas" style={{display:'none'}} width="0" height="0"></canvas>
 
-				{/* <button ref="sendAll" className="send" onClick={this.sendAll}>send all</button> */}
+				{!!photos.length && <div className="wrapper">
+					<button ref="sendAll" className="send" onClick={this.sendAll}>Отправить</button>
+				</div>}
+				
+				<div ref="output" className="output"></div>
 			</div>
 		);
 	}
