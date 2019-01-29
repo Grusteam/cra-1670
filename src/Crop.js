@@ -50,6 +50,7 @@ class Crop extends Component {
 			imageMaxSize: 10 * 1000 * 1000, /* Mb */
 			acceptMime: 'image/x-png, image/png, image/jpg, image/jpeg, image/gif',
 			fileTypes: ['x-png', 'png', 'jpg', 'jpeg', 'gif'],
+			ratio: 983/517
 		};
 
 		/* тестовые данные */
@@ -89,7 +90,7 @@ class Crop extends Component {
 		this.setState({
 			crop: {
 				...this.state.crop,
-				aspect: checked ? (1/1) : null,
+				aspect: checked ? (this.parameters.ratio) : null,
 			}
 		});
 	}
@@ -419,7 +420,7 @@ class Crop extends Component {
 							<button ref="cancel" className="cancel-editing" data-role='close-click' onClick={this.onCancelEditingClick}>Отменить</button>
 							<div className="aspect">
 								<input type="checkbox" id="aspect-ratio" onChange={this.onAspectRatioFixChange}></input>
-								<label htmlFor="aspect-ratio">Пропорции 1:1</label>
+								<label htmlFor="aspect-ratio">Фиксированные пропорции</label>
 							</div>
 						</div>
 					</div>
