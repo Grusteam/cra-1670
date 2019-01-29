@@ -80,4 +80,52 @@ export const
                 pixelCrop.height
             )
         }
-    };
+    },
+    /* base64/URLEncoded => raw binary data string */
+	dataURItoBlob = dataURI => {
+		var byteString;
+		if (dataURI.split(',')[0].indexOf('base64') >= 0)
+			byteString = window.atob(dataURI.split(',')[1]);
+		else
+			byteString = window.decodeURI(dataURI.split(',')[1]);
+
+		// separate out the mime component
+		var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+
+		// write the bytes of the string to a typed array
+		var ia = new Uint8Array(byteString.length);
+		for (var i = 0; i < byteString.length; i++) {
+			ia[i] = byteString.charCodeAt(i);
+		}
+
+		return new Blob([ia], {type:mimeString});
+	},
+    parseFileTypeToString = file => {
+		const {
+			name,
+			lastModified,
+			lastModifiedDate,
+			webkitRelativePath,
+			size,
+		} = file,
+		result = `name: ${name}, lastModified: ${lastModified}, lastModifiedDate: ${lastModifiedDate}, webkitRelativePath: ${webkitRelativePath}, size: ${size}, `;
+
+		return result;
+	},
+    makeFormData = () => {
+		/* FD> */
+		// const fd = new FormData();
+		
+		// /*file = downloadBase64File(canvasData, fileName); 
+		// console.log('file', file);
+		// */
+		
+		// fd.append('file', file);
+		// /* check FD to screen */
+		// const
+		// 	fileFromFd = fd.get('file'),
+		// 	str = parseFileTypeToString(fileFromFd);
+
+		// _console(str);
+		/* <FD */
+	};

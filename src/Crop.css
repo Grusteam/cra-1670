@@ -35,7 +35,7 @@
 
 .popup {
     opacity: 0;
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     bottom: 0;
@@ -47,7 +47,10 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+}
 
+.popup > * {
+    user-select: none;
 }
 
 .popup.is-active {
@@ -88,6 +91,7 @@
     height: 50px;
 
     margin-right: 10px;
+    user-select: none;
 }
 
 .finish-editing {
@@ -105,6 +109,10 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+}
+
+.aspect > label{
+    
 }
 
 .console {
@@ -165,4 +173,5 @@
 
 .output {
     word-break: break-all;
+    margin-top: 20px;
 }

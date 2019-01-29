@@ -10,10 +10,13 @@ import Photo from './Photo';
 
 /* Utils */
 import {
+    image64toCanvasRef,
+    extractImageFileExtensionFromBase64,
 	// base64StringtoFile,
     // downloadBase64File,
-    extractImageFileExtensionFromBase64,
-    image64toCanvasRef,
+	// dataURItoBlob,
+	// parseFileTypeToString,
+	// makeFormData,
 	// _console,
 } from './Utils'
 
@@ -33,20 +36,23 @@ class Crop extends Component {
 		};
 
 		this.state = {
+			/* выделение */
 			crop: this.cropFull,
-			ReactCropImageSrc: null,
-			photos: [],
 			showPopup: false,
+			ReactCropImageSrc: null,
 			editedPhotoIndex: null,
+			/* видимый результат */
+			photos: [],
 		};
 
-		/* статичные настройки */
+		/* статичные настройки (ограничения!)*/
 		this.parameters = {
 			imageMaxSize: 10 * 1000 * 1000, /* Mb */
 			acceptMime: 'image/x-png, image/png, image/jpg, image/jpeg, image/gif',
 			fileTypes: ['x-png', 'png', 'jpg', 'jpeg', 'gif'],
 		};
 
+		/* тестовые данные */
 		this.fetchOptions = {
 			endPoint: 'https://alterainvest.ru/api/v2/altbroker3/tools/picture/add/',
 			type: 'POST',
@@ -55,24 +61,30 @@ class Crop extends Component {
 		};
 
 		/* this */
-		this.onCropChange = this.onCropChange.bind(this);
-		this.onInputChange = this.onInputChange.bind(this);
-		this.onImageLoaded = this.onImageLoaded.bind(this);
-		this.onComplete = this.onComplete.bind(this);
-		this.verifyFiles = this.verifyFiles.bind(this);
-		this.onFinishEditingClick = this.onFinishEditingClick.bind(this);
-		this.addImage = this.addImage.bind(this);
-		this.showPopup = this.showPopup.bind(this);
-		this.onCancelEditingClick = this.onCancelEditingClick.bind(this);
-		this.tryFetch = this.tryFetch.bind(this);
-		this.pushToPhotos = this.pushToPhotos.bind(this);
-		this.onPhotoClick = this.onPhotoClick.bind(this);
-		this.sendAll = this.sendAll.bind(this);
-		this.onAspectRatioFixChange = this.onAspectRatioFixChange.bind(this);
+		(function(_){
+			const bindings = [
+				'onCropChange',
+				'onInputChange',
+				'onImageLoaded',
+				'onComplete',
+				'verifyFiles',
+				'onFinishEditingClick',
+				'showPopup',
+				'onCancelEditingClick',
+				'tryFetch',
+				'pushToPhotos',
+				'onPhotoClick',
+				'sendAll',
+				'onAspectRatioFixChange',
+			];
+
+			bindings.forEach(n => {_[n] = _[n].bind(_);});
+		})(this);
 	}
-	
+
 	/* ... . .-. --. . / --.. .... ..- .-. .- ...- .-.. . ...- */
 
+	/* aspect */
 	onAspectRatioFixChange({ target: { checked } }) {
 		this.setState({
 			crop: {
@@ -82,6 +94,7 @@ class Crop extends Component {
 		});
 	}
 
+	/* fetch */
 	async fetch({
 		fetch = (typeof window === 'undefined' ? ()=>{} : window.fetch),
 		address = 'http://httpbin.org/post',
@@ -105,6 +118,7 @@ class Crop extends Component {
 		return result;
 	}
 
+	/* test */
 	async tryFetch() {
 			const myHeaders = new Headers();
 
@@ -125,6 +139,7 @@ class Crop extends Component {
 			return result;
 		}
 
+	/* ограничения! */
 	verifyFiles = (files) => {
         if (files && files.length > 0){
             const
@@ -134,12 +149,12 @@ class Crop extends Component {
 				currentFileSize = currentFile.size;
 
             if (currentFileSize > this.imageMaxSize) {
-                // alert("This file is not allowed. " + currentFileSize + " bytes is too large")
+                // `This file is not allowed. ${currentFileSize} bytes is too large`
                 return false;
             }
 
             if (!this.parameters.fileTypes.includes(shortenFileType)){
-                // alert("This file is not allowed. Only images are allowed.")
+                // `This file is not allowed. Only images are allowed.`
                 return false;
             }
 
@@ -197,6 +212,7 @@ class Crop extends Component {
 		// console.log('target, value, files', target, value, files);
 	}
 
+	/* 1 фото */
 	pushToPhotos(base64) {
 		/* newPhoto */
 		const newPhoto = { src: base64 };
@@ -233,8 +249,9 @@ class Crop extends Component {
 			{ background, } = this.refs,
 			{ width, height } = pixelCrop; */
 
-		this.onComplete(null, pixelCrop);
 		// console.log('image, pixelCrop', image, pixelCrop);
+		
+		this.onComplete(null, pixelCrop);
 	}
 
 	/* после отпускания области редактирования */
@@ -245,43 +262,6 @@ class Crop extends Component {
 			{ ReactCropImageSrc } = this.state;
 
 		image64toCanvasRef(canvas, ReactCropImageSrc, pixelCrop);
-	}
-
-	/* base64/URLEncoded => raw binary data string */
-	dataURItoBlob(dataURI) {
-		var byteString;
-		if (dataURI.split(',')[0].indexOf('base64') >= 0)
-			byteString = window.atob(dataURI.split(',')[1]);
-		else
-			byteString = window.decodeURI(dataURI.split(',')[1]);
-
-		// separate out the mime component
-		var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-
-		// write the bytes of the string to a typed array
-		var ia = new Uint8Array(byteString.length);
-		for (var i = 0; i < byteString.length; i++) {
-			ia[i] = byteString.charCodeAt(i);
-		}
-
-		return new Blob([ia], {type:mimeString});
-	}
-
-	parseFileTypeToString(file) {
-		const {
-			name,
-			lastModified,
-			lastModifiedDate,
-			webkitRelativePath,
-			size,
-		} = file,
-		result = `name: ${name}, lastModified: ${lastModified}, lastModifiedDate: ${lastModifiedDate}, webkitRelativePath: ${webkitRelativePath}, size: ${size}, `;
-
-		return result;
-	}
-
-	addImage(src) {
-		// const { gallery } = this.refs;
 	}
 
 	/* отмена редактирования */
@@ -297,24 +277,6 @@ class Crop extends Component {
 		}
 	}
 
-	makeFormData() {
-		/* FD> */
-		// const fd = new FormData();
-		
-		// /*file = downloadBase64File(canvasData, fileName); 
-		// console.log('file', file);
-		// */
-		
-		// fd.append('file', file);
-		// /* check FD to screen */
-		// const
-		// 	fileFromFd = fd.get('file'),
-		// 	str = this.parseFileTypeToString(fileFromFd);
-
-		// _console(str);
-		/* <FD */
-	}
-
 	/* конец редактированиия одной фотографии */
 	onFinishEditingClick(e) {
 		const
@@ -324,15 +286,16 @@ class Crop extends Component {
 			mime = `image/${extension}`,
 			canvasData = canvas.toDataURL(mime);
 
-		// const file = this.dataURItoBlob(canvasData);
+		// const file = dataURItoBlob(canvasData);
 
 		const 
 			pre = photos.slice(0, editedPhotoIndex),
-			// newPhoto = { src: canvasData }, //current
 			post = photos.slice(editedPhotoIndex + 1);
+			
+		// newPhoto = { src: canvasData }, //current
+		// photos: [...this.state.photos, newPhoto],
 
 		this.setState({
-			// photos: [...this.state.photos, newPhoto],
 			photos: [...pre, canvasData, ...post],
 			showPopup: false,
 			crop: {
@@ -355,6 +318,7 @@ class Crop extends Component {
 		showPopup(src, index);
 	}
 
+	/* test */
 	sendAll(e) {
 		let photosShortStr = '';
 
@@ -435,7 +399,7 @@ class Crop extends Component {
 				</div>
 				
 				{/* popup */}
-				<div className={`popup ${showPopup ? 'is-active' : ''}`} data-role='close-down' onMouseDown={this.onCancelEditingClick}>
+				<div ref="popup" className={`popup ${showPopup ? 'is-active' : ''}`} data-role='close-down' onMouseDown={this.onCancelEditingClick}>
 					<div className="background" ref="background">
 						{showPopup && <ReactCrop
 							src={ReactCropImageSrc}
@@ -446,6 +410,8 @@ class Crop extends Component {
 							imageStyle={{
 								maxHeight: '600px',
 								maxWidth: '800px',
+								minHeight: '30px',
+								minWidth: '30px',
 							}}
 						/>}
 						<div className="wrapper">
