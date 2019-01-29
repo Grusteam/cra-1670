@@ -1,5 +1,36 @@
+.crop {
+    width: 550px;
+    min-height: 260px;
+
+    background-color: #fff;
+    border: 1px solid #E1E5E9;
+    box-sizing: border-box;
+    border-radius: 4px;
+    padding: 20px;
+}
+
+.header {
+    
+}
+
+.title {
+    font-size: 16px;
+    font-family: Roboto;
+    font-weight: 500;
+}
+
+.hr {
+    /* width: 100%; */
+    height: 1px;
+    background: #E1E5E9;
+    margin-top: 10px;
+}
+
 .photos {
     display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin: 20px 0;
 }
 
 .popup {
@@ -9,7 +40,7 @@
     left: 0;
     bottom: 0;
     right: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.3);
     pointer-events: none;
 
     display: flex;
@@ -24,7 +55,7 @@
 }
 
 .background {
-    padding: 20px;
+    padding: 25px;
     background-color: #fff;
 
     display: flex;
@@ -34,7 +65,7 @@
 }
 
 .wrapper {
-    margin: 10px 0 0 0;
+    margin: 25px 0 0 0;
     display: flex;
     width: 100%;
     justify-content: space-around;
@@ -44,6 +75,11 @@
 .cancel-editing {
     border: none;
     cursor: pointer;
+    background: none;
+
+    border: 2px solid #E5E5E5;
+    box-sizing: border-box;
+    border-radius: 3px;
 }
 
 .console {
@@ -56,16 +92,19 @@
     z-index: 999999;
 }
 
+.input-outer-wrapper {
+    height: 100px;
+    width: 100%;
+
+    display: flex;
+    justify-content: center;
+}
+
 .input-wrapper {
     position: relative;
 
-    text-align: center;
-    line-height: 20px;
-    border: 2px dashed #4da1ff;
-    border-radius: 3px;
-
     width: 480px;
-    height: 100px;
+
 }
     
 .input-wrapper__input,
@@ -84,11 +123,17 @@
 }
 
 .input-wrapper__field {
-    pointer-events: none;
-    text-align: center; 
-
-    padding: 0 125px;
-    align-items: center;
+    display: flex;
     justify-content: center;
-    flex: 0 1 100%; 
+    align-items: center;
+    pointer-events: none;
+
+    border: 2px dashed #4da1ff;
+    border-radius: 3px;
+}
+
+.input-wrapper__field >div {
+    width: 240px;
+    font-size: 12px;
+    text-align: center;
 }

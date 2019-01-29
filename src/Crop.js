@@ -14,7 +14,7 @@ import {
     // downloadBase64File,
     extractImageFileExtensionFromBase64,
     image64toCanvasRef,
-	_console,
+	// _console,
 } from './Utils'
 
 /* ... . .-. --. . / --.. .... ..- .-. .- ...- .-.. . ...- */
@@ -30,8 +30,6 @@ class Crop extends Component {
 			y: 0,
 			width: 100,
 			height: 100,
-			/* фиксация соотношения сторон выделения */
-			// aspect: 1/1
 		};
 
 		this.state = {
@@ -70,9 +68,19 @@ class Crop extends Component {
 		this.pushToPhotos = this.pushToPhotos.bind(this);
 		this.onPhotoClick = this.onPhotoClick.bind(this);
 		this.sendAll = this.sendAll.bind(this);
+		this.onAspectRatioFixChange = this.onAspectRatioFixChange.bind(this);
 	}
 	
 	/* ... . .-. --. . / --.. .... ..- .-. .- ...- .-.. . ...- */
+
+	onAspectRatioFixChange({ target: { checked } }) {
+		this.setState({
+			crop: {
+				...this.state.crop,
+				aspect: checked ? (1/1) : null,
+			}
+		});
+	}
 
 	async fetch({
 		fetch = (typeof window === 'undefined' ? ()=>{} : window.fetch),
@@ -102,13 +110,13 @@ class Crop extends Component {
 
 			myHeaders.append("Content-Type", "json");
 
-			const
+			/* const
 				options = {
 					method: 'POST',
 					headers: myHeaders,
 					mode: 'cors',
 					cache: 'default',
-				};
+				}; */
 
 			// console.log('crop, ReactCropImageSrc', crop, ReactCropImageSrc);
 
@@ -121,7 +129,7 @@ class Crop extends Component {
         if (files && files.length > 0){
             const
 				currentFile = files[0],
-				currentFileType = currentFile.type,
+				// currentFileType = currentFile.type,
 				shortenFileType = currentFile.type.split('image/')[1],
 				currentFileSize = currentFile.size;
 
@@ -142,6 +150,7 @@ class Crop extends Component {
 	/* во время перемещения выделенной области */
 	onCropChange(crop) {
 		// console.log('crop', crop);
+		// console.log('this.state', this.state);
         this.setState({crop})
 	}
 
@@ -290,8 +299,9 @@ class Crop extends Component {
 			{ canvas } = this.refs,
 			{ ReactCropImageSrc, photos, editedPhotoIndex } = this.state,
 			fileName = `name.${extractImageFileExtensionFromBase64(ReactCropImageSrc)}`,
-			canvasData = canvas.toDataURL(fileName),
-			file = this.dataURItoBlob(canvasData);
+			canvasData = canvas.toDataURL(fileName);
+
+			// file = this.dataURItoBlob(canvasData);
 
 		const 
 			pre = photos.slice(0, editedPhotoIndex),
@@ -302,14 +312,18 @@ class Crop extends Component {
 			// photos: [...this.state.photos, newPhoto],
 			photos: [...pre, newPhoto, ...post],
 			showPopup: false,
-			crop: this.cropFull,
+			crop: {
+				...this.cropFull,
+				/* фиксация соотношения сторон выделения */
+				aspect: this.state.crop.aspect
+			},
 		});
 	}
 
 	/* клик по фото для вызова редактора */
 	onPhotoClick(index, e) {
 		const
-			{ target } = e,
+			// { target } = e,
 			{ photos } = this.state,
 			imageStateObj = photos[index],
 			{ src } = imageStateObj;
@@ -326,21 +340,28 @@ class Crop extends Component {
 
 	/* ... . .-. --. . / --.. .... ..- .-. .- ...- .-.. . ...- */
 
+	/* test> */
+	/* setTimeout(async() => {
+			const obj = await this.tryFetch();
+
+			console.log('obj', obj);
+		}, 1000); */
+	/* <test */
+
 	render() {
 		const
 			// {  } = this.props,
 			{ crop, ReactCropImageSrc, photos, showPopup } = this.state;
 
-		/* setTimeout(async() => {
-			const obj = await this.tryFetch();
-
-			console.log('obj', obj);
-		}, 1000); */
-
 		return (
-			<div className="Crop">
-				{/*  ReactCropImageSrc && <img src='dog.png' />  */}
-
+			/* наш компонент */
+			<div className="crop">
+				{/* шапка */}
+				<div className="header">
+					<div className="title">Галерея</div>
+					<div className="hr"></div>
+				</div>
+		
 				{/* отредактированные фото */}
 				<div className="photos">
 					{photos.map((image, i) => {
@@ -355,36 +376,52 @@ class Crop extends Component {
 						);
 					})}
 				</div>
-				
-				<div className="gallery" ref="gallery"></div>
-						<div className="input-wrapper">
-							<input
-								accept={this.parameters.acceptMime}
-								type="file"
-								onChange={this.onInputChange}
-								multiple={true}
-								className="input-wrapper__input"
-							/>
-							<div className="input-wrapper__field">Перетащите сюда файлы для добавления или нажмите для выбора</div>
+
+				{/* ввод */}
+				<div className="input-outer-wrapper">
+					<div className="input-wrapper">
+						<input
+							accept={this.parameters.acceptMime}
+							type="file"
+							onChange={this.onInputChange}
+							multiple={true}
+							className="input-wrapper__input"
+						/>
+						<div className="input-wrapper__field">
+							<div>Перетащите сюда файлы для добавления или нажмите для выбора</div>
 						</div>
-						<div className={`popup ${showPopup ? 'is-active' : ''}`} data-role='close' onClick={this.onCancelEditingClick}>
+					</div>
+				</div>
+				
+				{/* popup */}
+				<div className={`popup ${showPopup ? 'is-active' : ''}`} data-role='close' onClick={this.onCancelEditingClick}>
 							<div className="background" ref="background">
 								{showPopup && <ReactCrop
 									src={ReactCropImageSrc}
 									onChange={this.onCropChange}
 									crop={crop} 
 									onImageLoaded={this.onImageLoaded}
-									onComplete = {this.onComplete}
+									onComplete={this.onComplete}
+									imageStyle={{
+										maxHeight: '600px',
+										maxWidth: '800px',
+									}}
 								/>}
 								<div className="wrapper">
-									<button ref="finish" className="finish-editing" onClick={this.onFinishEditingClick}>Finish editing</button>
-									<button ref="cancel" className="cancel-editing" data-role='close'>cancel editing</button>
+									<button ref="finish" className="finish-editing" onClick={this.onFinishEditingClick}>Сохранить</button>
+									<button ref="cancel" className="cancel-editing" data-role='close'>Отменить</button>
+									<div className="aspect">
+										<input type="checkbox" id="aspect-ratio" onChange={this.onAspectRatioFixChange}></input>
+										<label htmlFor="aspect-ratio">Пропорции 1:1</label>
+									</div>
 								</div>
 							</div>
 						</div>
+				
+				{/* canvas - необходимый скрытый элемент */}
 				<canvas ref="canvas" style={{display:'none'}} width="0" height="0"></canvas>
-				<button ref="sendAll" className="send" onClick={this.sendAll}>send all</button>
-				{/* <div className="console"></div> */}
+
+				{/* <button ref="sendAll" className="send" onClick={this.sendAll}>send all</button> */}
 			</div>
 		);
 	}
