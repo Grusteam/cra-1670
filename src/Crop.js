@@ -42,7 +42,7 @@ class Crop extends Component {
 			ReactCropImageSrc: null,
 			editedPhotoIndex: null,
 			/* видимый результат */
-			photos: [],
+			photos: ['https://alterainvest.ru/upload/pic_alt3/21299__eb0cfec3-58d1-4dcd-8fcf-61c609b0c404/office-slide-4.jpg'],
 		};
 
 		/* статичные настройки (ограничения!)*/
@@ -361,6 +361,17 @@ class Crop extends Component {
 			// {  } = this.props,
 			{ crop, ReactCropImageSrc, photos, showPopup } = this.state;
 
+			const x = new Image();
+
+			x.src = photos[0];
+
+			console.log('x', x);
+
+			x.addEventListener('load', (data) => {
+				console.log('data', data);
+				console.log('x', x);
+			});
+
 		return (
 			/* наш компонент */
 			<div className="crop">
@@ -403,7 +414,7 @@ class Crop extends Component {
 				<div ref="popup" className={`popup ${showPopup ? 'is-active' : ''}`} data-role='close-down' onMouseDown={this.onCancelEditingClick}>
 					<div className="background" ref="background">
 						{showPopup && <ReactCrop
-							src={ReactCropImageSrc}
+							src={x.src}
 							onChange={this.onCropChange}
 							crop={crop} 
 							onImageLoaded={this.onImageLoaded}
@@ -427,7 +438,7 @@ class Crop extends Component {
 				</div>
 				
 				{/* canvas - необходимый скрытый элемент */}
-				<canvas ref="canvas" style={{display:'none'}} width="0" height="0"></canvas>
+				<canvas crossOrigin="anonymous" ref="canvas" style={{display:'none'}} width="0" height="0"></canvas>
 
 				{!!photos.length && <div className="wrapper">
 					<button ref="sendAll" className="send" onClick={this.sendAll}>Отправить</button>
