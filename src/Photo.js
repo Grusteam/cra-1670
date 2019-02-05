@@ -27,7 +27,7 @@ class Photo extends Component {
 
 		return (
 			<div className="photo">
-				<img className="image" src={src} onClick={onClick} alt=''/>
+				<img /* crossOrigin="Anonymous" */ className="image" src={src} onClick={onClick} alt=''/>
 				{/* <button className="btn btn--move" onClick={this.onMoveToList}>Move</button> */}
 				{/* <button className="btn btn--del" onClick={this.onDelete}>Del</button> */}
 			</div>
