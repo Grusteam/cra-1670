@@ -38,10 +38,13 @@ class App extends Component {
 
 		this.smoothValue = 0;
 
+		this.speedBoundaries = [0.1, 16];
+
 		/* this */
 		this.catchWindowScroll = this.catchWindowScroll.bind(this);
 		this.step = this.step.bind(this);
 		this.setVideoPosition = this.setVideoPosition.bind(this);
+		this.setVideoRate = this.setVideoRate.bind(this);
 	}
 
 	componentDidMount() {
@@ -61,9 +64,7 @@ class App extends Component {
 			realPercent = scrollY / innerHeight * 100,
 			scrollH = document.documentElement.scrollHeight,
 			scrollPercent = scrollY / (scrollH - innerHeight) * 100;
-
-
-		// console.log('scrollPercent', scrollPercent);
+		
 
 		if (this.frame === 1) {
 			this.smoothValue = scrollPercent;
@@ -73,20 +74,39 @@ class App extends Component {
 
 		this.videoSeconds = this.smoothValue * this.videoLength / 100;
 
-		// console.log('this.smoothValue', this.smoothValue);
+		const
+			testSpeed = this.smoothValue === 0 
+				? this.speedBoundaries[0]
+				: this.smoothValue / 100 * this.speedBoundaries[1];
+
+			// normalSpeed = this.smoothValue / 50,
+			// normalizedRate = normalSpeed >= 0.1 && normalSpeed <= 20 ? normalSpeed : normalSpeed < 0.1 ? 0.1 : 20;
+		
+		this.setVideoRate(testSpeed);
+
+		console.log('this.smoothValue', this.smoothValue);
+		console.log('testSpeed', testSpeed);
 		// console.log('this.videoLength', this.videoLength);
-		console.log('this.frame', this.frame);
+		// console.log('this.frame', this.frame);
+
 
 		/* set video position */
-		this.setVideoPosition();
+		// this.setVideoPosition();
 	}
 
 	setVideoPosition(s = this.videoSeconds) {
-		const { video } = this.refs,
-		x = video.currentTime = s;
+		const { video } = this.refs;
+		video.currentTime = s;
+	}
 
-		console.log('x', x);
-		
+	setVideoRate(r = this.videoRate) {
+		const
+			{ video } = this.refs,
+			normalized = r >= 20 ? 16 : r < 0.1 ? 0.1 : r;
+
+		video.playbackRate = normalized;
+
+		console.log('video.playbackRate', video.playbackRate);
 	}
 
 	smoothing(percent = 0) {
@@ -101,7 +121,7 @@ class App extends Component {
 	render() {
 		return <div className="App" >
 			<div className="video">
-				<video ref='video' src={'./video.mp4'}>
+				<video ref='video' autoPlay={true} src={'./video.mp4'}>
 				</video>
 			</div>
 		</div>	;
