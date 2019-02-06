@@ -6,9 +6,21 @@ import Crop from './Crop';
 class App extends Component {
   render() {
     return (
-      <div className="app" >
-        <Crop test="test_1"/>
-      </div>
+		<div className='container'>
+			container
+			<div className='header'>
+				header
+			</div>
+			<div className='navigation-menu'>
+				navigation-menu
+			</div>
+			<div className='main-content'>
+				main-content
+			</div>
+			<div className='footer'>
+				footer
+			</div>
+		</div>
     );
   }
 }
