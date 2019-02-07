@@ -39,12 +39,18 @@ class App extends Component {
 		this.smoothValue = 0;
 
 		this.speedBoundaries = [0.1, 16];
+		this.FPS = 25;
+		this.frame = 0;
+		this.callCount = 0;
 
 		/* this */
 		this.catchWindowScroll = this.catchWindowScroll.bind(this);
 		this.step = this.step.bind(this);
 		this.setVideoPosition = this.setVideoPosition.bind(this);
 		this.setVideoRate = this.setVideoRate.bind(this);
+		this.intervalSteps = this.intervalSteps.bind(this);
+		this.reduceVideoPositionToExistingFrame = this.reduceVideoPositionToExistingFrame.bind(this);
+		this.basicMeasures = this.basicMeasures.bind(this);
 	}
 
 	componentDidMount() {
@@ -53,18 +59,59 @@ class App extends Component {
 
 		video.addEventListener('loadeddata', (e) => {
 			this.videoLength = video.duration;
-			this.frame = requestAnimationFrame(this.step);
-			window.addEventListener('scroll', _.throttle(this.catchWindowScroll, 40));
+
+			// this.frame = requestAnimationFrame(this.step);
+
+			this.framesCount = this.videoLength * this.FPS; 
+			this.frameStep = 1 / this.FPS;
+
+			// console.log('this.frameStep', this.frameStep);
+
+			// this.intervalSteps(this.frameStep);
+
+			window.addEventListener('scroll', _.throttle(this.catchWindowScroll, this.frameStep));
+			// window.addEventListener('scroll', this.catchWindowScroll);
 		});
+		
 	}
 
-	step(timestamp) {
+	intervalSteps(frameStep) {
+		setInterval(() => {
+			this.frame++;
+
+			const sec = frameStep * this.frame;
+
+			console.log('this.frame', this.frame);
+			console.log('sec', sec);
+
+
+			this.setVideoPosition(sec);
+		}, 1000 / this.FPS);
+	}
+
+	basicMeasures() {
 		const
+			{ refs } = this,
+			{ video } = refs,
 			{ scrollY, innerHeight, scrollHeight } = window,
 			realPercent = scrollY / innerHeight * 100,
 			scrollH = document.documentElement.scrollHeight,
 			scrollPercent = scrollY / (scrollH - innerHeight) * 100,
-			{ video } = this.refs,
+			{ currentTime } = video;
+
+		return {
+			scrollPercent
+		};
+	}
+
+	step(timestamp) {
+		const
+			{ refs } = this,
+			{ video } = refs,
+			{ scrollY, innerHeight, scrollHeight } = window,
+			realPercent = scrollY / innerHeight * 100,
+			scrollH = document.documentElement.scrollHeight,
+			scrollPercent = scrollY / (scrollH - innerHeight) * 100,
 			{ currentTime } = video;
 
 		if (this.frame === 1) {
@@ -83,10 +130,16 @@ class App extends Component {
 				: this.smoothValue / 100 * this.speedBoundaries[1],
 			speedCoefficient = diffPercent * this.speedBoundaries[1];
 
+		const framePos = this.reduceVideoPositionToExistingFrame();
+
+		console.log('framePos', framePos);
+
+		// console.log('this.videoSeconds', this.videoSeconds);
+
 			// normalSpeed = this.smoothValue / 50,
 			// normalizedRate = normalSpeed >= 0.1 && normalSpeed <= 20 ? normalSpeed : normalSpeed < 0.1 ? 0.1 : 20;
 		
-		this.setVideoRate(speedCoefficient);
+		// this.setVideoRate(speedCoefficient);
 
 		// console.log('diffPercent', diffPercent);
 		// console.log('currentTime', currentTime);
@@ -99,6 +152,20 @@ class App extends Component {
 
 		/* set video position */
 		// this.setVideoPosition();
+	}
+
+	reduceVideoPositionToExistingFrame(s = this.videoSeconds) {
+		const
+			{ framesCount, videoLength, FPS, frameStep } = this,
+			regardlessFrameRaw = FPS * s,
+			regardlessFrame = Math.floor(regardlessFrameRaw),
+			frameSeconds = regardlessFrame * frameStep;
+
+		return frameSeconds;
+
+		// console.log('s', s);
+		// console.log('regardlessFrame', regardlessFrame);
+		// console.log('regardlessFrameRaw', regardlessFrameRaw);
 	}
 
 	setVideoPosition(s = this.videoSeconds) {
@@ -121,14 +188,32 @@ class App extends Component {
 	}
 
 	catchWindowScroll(e) {
+		const
+			{ reduceVideoPositionToExistingFrame, basicMeasures } = this,
+			{ scrollPercent } = basicMeasures();
+		
+		this.callCount++;
+
+
+		this.videoSeconds = scrollPercent * this.videoLength / 100;
+		const frameSeconds = reduceVideoPositionToExistingFrame(this.videoSeconds);
+
+		/* set video position */
+		console.log('frameSeconds', frameSeconds);
+		this.setVideoPosition(frameSeconds);
+
+		// return this.videoSeconds;
+		// console.log('scrollPercent', scrollPercent);
+
+
 		/* reassign-loop */
-		this.frame = requestAnimationFrame(this.step);
+		// this.frame = requestAnimationFrame(this.step);
 	}
 
 	render() {
 		return <div className="App" >
 			<div className="video">
-				<video ref='video' autoPlay={true} src={'./video.mp4'}>
+				<video ref='video' autoPlay={false} src={'./video.mp4'}>
 				</video>
 			</div>
 		</div>	;
