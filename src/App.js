@@ -4,8 +4,6 @@ import "./App.css";
 import _ from 'lodash';
 import VideoFrame from "./VideoFrame";
 
-console.log('VideoFrame', VideoFrame);
-
 const EasingFunctions = {
   // no easing, no acceleration
   linear: function (t) { return t },
@@ -39,10 +37,9 @@ class App extends Component {
 	constructor() {
 		super();
 
-		this.FPS = 25;
 		this.frame = 0;
 		this.callCount = 0;
-		
+		this.frameRateDivider = 1;
 
 		/* this */
 		this.catchWindowScroll = this.catchWindowScroll.bind(this);
@@ -62,20 +59,23 @@ class App extends Component {
 	}
 
 	onVideoReady(e) {
-		const { video } = this.refs;
+		const
+			{ video } = this.refs,
+			{ dataset } = video,
+			{ fps } = Object.assign({}, dataset);
+		
 
 		this.videoLength = video.duration;
-
+		this.FPS = +fps;
 
 		this.framesCount = this.videoLength * this.FPS; 
 		this.frameStep = 1 / this.FPS;
 
-		this.playbackFPS = 20;
-		this.playbackDelay = 1000 / this.playbackFPS;
+		this.playbackDelay = 1000 / this.FPS / this.frameRateDivider;
 
 		this.V = new VideoFrame({
 			id: 'video',
-			frameRate: 25,
+			frameRate: this.FPS,
 			callback: function(response) {
 				console.log(response);
 			}
@@ -172,14 +172,22 @@ class App extends Component {
 
 	reduceVideoPositionToExistingFrame(s = this.videoSeconds) {
 		const
+			{ V } = this,
+			frame = V.get(),
+			SMPTE = V.toSMPTE();
+
+		const
 			{ framesCount, videoLength, FPS, frameStep } = this,
 			regardlessFrameRaw = FPS * s,
 			regardlessFrame = Math.floor(regardlessFrameRaw),
 			frameSeconds = regardlessFrame * frameStep;
 
-		return frameSeconds;
-
 		// console.log('s', s);
+		// console.log('regardlessFrameRaw, regardlessFrame, frameSeconds', regardlessFrameRaw, regardlessFrame, frameSeconds);
+
+		return regardlessFrame;
+		// return frameSeconds;
+
 		// console.log('regardlessFrame', regardlessFrame);
 		// console.log('regardlessFrameRaw', regardlessFrameRaw);
 	}
@@ -205,24 +213,36 @@ class App extends Component {
 
 	catchWindowScroll(e) {
 
-		const
-			{ V } = this,
-			frame = V.get(),
-			SMPTE = V.toSMPTE();
+		// const
+		// 	{ V } = this,
+		// 	frame = V.get(),
+		// 	SMPTE = V.toSMPTE();
 
 		// console.log('SMPTE', SMPTE);
 		// console.log('frame', frame);
 
-		V.seekForward(1, console.log);
 
-		/* const
+		const
 			{ reduceVideoPositionToExistingFrame, basicMeasures } = this,
 			{ scrollPercent } = basicMeasures();
 		
-		this.callCount++;
+		// console.log('scrollPercent', scrollPercent);
 
+		// this.callCount++;
 		this.videoSeconds = scrollPercent * this.videoLength / 100;
-		const frameSeconds = reduceVideoPositionToExistingFrame(this.videoSeconds); */
+
+		const
+			{ V } = this,
+			// frame = V.get(),
+			seekFrame = reduceVideoPositionToExistingFrame(this.videoSeconds),
+			SMPTE = V.toSMPTE(seekFrame);
+
+		V.seekForward(1)
+
+		// console.log('seekFrame', seekFrame);
+		// console.log('SMPTE', SMPTE);
+
+		// V.toFrames(SMPTE);
 
 		/* set video position */
 		// console.log('this.callCount', this.callCount);
@@ -230,7 +250,6 @@ class App extends Component {
 		// this.setVideoPosition(frameSeconds);
 
 		// return this.videoSeconds;
-		// console.log('scrollPercent', scrollPercent);
 
 
 		/* reassign-loop */
@@ -240,7 +259,9 @@ class App extends Component {
 	render() {
 		return <div className="App" >
 			<div className="video">
-				<video id='video' ref='video' autoPlay={false} src={'./25fps.mp4'}>
+				<video id='video' ref='video' autoPlay={false} data-fps='25' src={'./video.mp4'}>
+				{/* <video id='video' ref='video' autoPlay={false} data-fps='25' src={'./25fps.mp4'}> */}
+				{/* <video id='video' ref='video' autoPlay={false} data-fps='29.97' src={'./29.97fps.mp4'}> */}
 				</video>
 			</div>
 		</div>	;
