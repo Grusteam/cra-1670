@@ -2,6 +2,9 @@ import React, { Component } from "react";
 import logo from "./logo.svg";
 import "./App.css";
 import _ from 'lodash';
+import VideoFrame from "./VideoFrame";
+
+console.log('VideoFrame', VideoFrame);
 
 const EasingFunctions = {
   // no easing, no acceleration
@@ -36,12 +39,10 @@ class App extends Component {
 	constructor() {
 		super();
 
-		this.smoothValue = 0;
-
-		this.speedBoundaries = [0.1, 16];
 		this.FPS = 25;
 		this.frame = 0;
 		this.callCount = 0;
+		
 
 		/* this */
 		this.catchWindowScroll = this.catchWindowScroll.bind(this);
@@ -51,28 +52,43 @@ class App extends Component {
 		this.intervalSteps = this.intervalSteps.bind(this);
 		this.reduceVideoPositionToExistingFrame = this.reduceVideoPositionToExistingFrame.bind(this);
 		this.basicMeasures = this.basicMeasures.bind(this);
+		this.onVideoReady = this.onVideoReady.bind(this);
 	}
 
 	componentDidMount() {
 		const { video } = this.refs;
 
+		video.addEventListener('loadeddata', this.onVideoReady);
+	}
 
-		video.addEventListener('loadeddata', (e) => {
-			this.videoLength = video.duration;
+	onVideoReady(e) {
+		const { video } = this.refs;
 
-			// this.frame = requestAnimationFrame(this.step);
+		this.videoLength = video.duration;
 
-			this.framesCount = this.videoLength * this.FPS; 
-			this.frameStep = 1 / this.FPS;
 
-			// console.log('this.frameStep', this.frameStep);
+		this.framesCount = this.videoLength * this.FPS; 
+		this.frameStep = 1 / this.FPS;
 
-			// this.intervalSteps(this.frameStep);
+		this.playbackFPS = 20;
+		this.playbackDelay = 1000 / this.playbackFPS;
 
-			window.addEventListener('scroll', _.throttle(this.catchWindowScroll, this.frameStep));
-			// window.addEventListener('scroll', this.catchWindowScroll);
-		});
-		
+		this.V = new VideoFrame({
+			id: 'video',
+			frameRate: 25,
+			callback: function(response) {
+				console.log(response);
+			}
+		})
+
+
+		window.addEventListener('scroll', _.throttle(this.catchWindowScroll, this.playbackDelay));
+		// window.addEventListener('scroll', _.throttle(this.catchWindowScroll, this.frameStep));
+		// window.addEventListener('scroll', this.catchWindowScroll);
+
+		// this.frame = requestAnimationFrame(this.step);
+		// this.intervalSteps(this.frameStep);
+		// console.log('this.frameStep', this.frameStep);
 	}
 
 	intervalSteps(frameStep) {
@@ -188,19 +204,30 @@ class App extends Component {
 	}
 
 	catchWindowScroll(e) {
+
 		const
+			{ V } = this,
+			frame = V.get(),
+			SMPTE = V.toSMPTE();
+
+		// console.log('SMPTE', SMPTE);
+		// console.log('frame', frame);
+
+		V.seekForward(1, console.log);
+
+		/* const
 			{ reduceVideoPositionToExistingFrame, basicMeasures } = this,
 			{ scrollPercent } = basicMeasures();
 		
 		this.callCount++;
 
-
 		this.videoSeconds = scrollPercent * this.videoLength / 100;
-		const frameSeconds = reduceVideoPositionToExistingFrame(this.videoSeconds);
+		const frameSeconds = reduceVideoPositionToExistingFrame(this.videoSeconds); */
 
 		/* set video position */
-		console.log('frameSeconds', frameSeconds);
-		this.setVideoPosition(frameSeconds);
+		// console.log('this.callCount', this.callCount);
+		// console.log('this.videoSeconds', this.videoSeconds);
+		// this.setVideoPosition(frameSeconds);
 
 		// return this.videoSeconds;
 		// console.log('scrollPercent', scrollPercent);
@@ -213,7 +240,7 @@ class App extends Component {
 	render() {
 		return <div className="App" >
 			<div className="video">
-				<video ref='video' autoPlay={false} src={'./video.mp4'}>
+				<video id='video' ref='video' autoPlay={false} src={'./25fps.mp4'}>
 				</video>
 			</div>
 		</div>	;
