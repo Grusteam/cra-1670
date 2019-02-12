@@ -50,6 +50,7 @@ class App extends Component {
 		this.reduceVideoPositionToExistingFrame = this.reduceVideoPositionToExistingFrame.bind(this);
 		this.basicMeasures = this.basicMeasures.bind(this);
 		this.onVideoReady = this.onVideoReady.bind(this);
+		this.intervalIt = this.intervalIt.bind(this);
 	}
 
 	componentDidMount() {
@@ -68,10 +69,15 @@ class App extends Component {
 		this.videoLength = video.duration;
 		this.FPS = +fps;
 
+
 		this.framesCount = this.videoLength * this.FPS; 
 		this.frameStep = 1 / this.FPS;
 
 		this.playbackDelay = 1000 / this.FPS / this.frameRateDivider;
+
+		console.log('this.FPS', this.FPS);
+		console.log('this.playbackDelay', this.playbackDelay);
+		console.log('this.frameStep', this.frameStep);
 
 		this.V = new VideoFrame({
 			id: 'video',
@@ -81,9 +87,9 @@ class App extends Component {
 			}
 		})
 
+		// this.intervalIt();
 
 		window.addEventListener('scroll', _.throttle(this.catchWindowScroll, this.playbackDelay));
-		// window.addEventListener('scroll', _.throttle(this.catchWindowScroll, this.frameStep));
 		// window.addEventListener('scroll', this.catchWindowScroll);
 
 		// this.frame = requestAnimationFrame(this.step);
@@ -130,27 +136,41 @@ class App extends Component {
 			scrollPercent = scrollY / (scrollH - innerHeight) * 100,
 			{ currentTime } = video;
 
-		if (this.frame === 1) {
+		/* if (this.frame === 1) {
 			this.smoothValue = scrollPercent;
 		} else {
 			this.smoothValue = this.smoothing(scrollPercent);
-		}
+		} */
 
-		this.videoSeconds = this.smoothValue * this.videoLength / 100;
-
-		const
-			diffSeconds = currentTime - this.videoSeconds,
-			diffPercent = diffSeconds / this.videoLength,
-			testSpeed = this.smoothValue === 0 
-				? this.speedBoundaries[0]
-				: this.smoothValue / 100 * this.speedBoundaries[1],
-			speedCoefficient = diffPercent * this.speedBoundaries[1];
-
-		const framePos = this.reduceVideoPositionToExistingFrame();
-
-		console.log('framePos', framePos);
+		// this.videoSeconds = this.smoothValue * this.videoLength / 100;
+		this.videoSeconds = scrollPercent / 100;
 
 		// console.log('this.videoSeconds', this.videoSeconds);
+
+		// const
+		// 	diffSeconds = currentTime - this.videoSeconds,
+		// 	diffPercent = diffSeconds / this.videoLength,
+		// 	testSpeed = this.smoothValue === 0 
+		// 		? this.speedBoundaries[0]
+		// 		: this.smoothValue / 100 * this.speedBoundaries[1],
+		// 	speedCoefficient = diffPercent * this.speedBoundaries[1];
+
+		// const framePos = this.reduceVideoPositionToExistingFrame();
+
+		// console.log('framePos', framePos);
+
+		// console.log('timestamp', timestamp);
+		// console.log('this.videoSeconds', this.videoSeconds);
+
+		/* reassign-loop */
+		// this.frame = requestAnimationFrame(this.step);
+		
+		// const frameSecond = this.frame * 1/60;
+
+		// this.setVideoPosition(frameSecond);
+
+		// console.log('this.frame', this.frame);
+		// console.log('frameSecond', frameSecond);
 
 			// normalSpeed = this.smoothValue / 50,
 			// normalizedRate = normalSpeed >= 0.1 && normalSpeed <= 20 ? normalSpeed : normalSpeed < 0.1 ? 0.1 : 20;
@@ -193,6 +213,7 @@ class App extends Component {
 	}
 
 	setVideoPosition(s = this.videoSeconds) {
+		// console.log('s', s);
 		const { video } = this.refs;
 		video.currentTime = s;
 	}
@@ -213,13 +234,12 @@ class App extends Component {
 
 	catchWindowScroll(e) {
 
-		// const
-		// 	{ V } = this,
-		// 	frame = V.get(),
-		// 	SMPTE = V.toSMPTE();
+		const
+			{ V } = this,
+			frame = V.get(),
+			SMPTE = V.toSMPTE();
 
 		// console.log('SMPTE', SMPTE);
-		// console.log('frame', frame);
 
 
 		const
@@ -229,17 +249,25 @@ class App extends Component {
 		// console.log('scrollPercent', scrollPercent);
 
 		// this.callCount++;
-		this.videoSeconds = scrollPercent * this.videoLength / 100;
+		this.videoSeconds = scrollPercent * this.videoLength / 100 + 0.00001;
 
-		const
+		/* const
 			{ V } = this,
-			// frame = V.get(),
+			frame = V.get(),
 			seekFrame = reduceVideoPositionToExistingFrame(this.videoSeconds),
-			SMPTE = V.toSMPTE(seekFrame);
-
-		V.seekForward(1)
+			SMPTE = V.toSMPTE(seekFrame); */
 
 		// console.log('seekFrame', seekFrame);
+		// console.log('SMPTE', SMPTE);
+
+
+		/* set video position */
+		this.setVideoPosition();
+
+
+
+
+
 		// console.log('SMPTE', SMPTE);
 
 		// V.toFrames(SMPTE);
@@ -256,10 +284,33 @@ class App extends Component {
 		// this.frame = requestAnimationFrame(this.step);
 	}
 
+	intervalIt(delay = this.playbackDelay) {
+		const
+			{ V } = this;
+
+		setInterval(() => {
+		const
+			frame = V.get(),
+			SMPTE = V.toSMPTE();
+
+			V.seekForward(1);
+			// console.log('frame', frame);
+			console.log('SMPTE', SMPTE);
+		}, delay);
+	}
+
+	RAF() {
+	}
+
 	render() {
 		return <div className="App" >
-			<div className="video">
-				<video id='video' ref='video' autoPlay={false} data-fps='25' src={'./video.mp4'}>
+			<div className="video-wrapper">
+				{/* <video id='video' ref='video' autoPlay={false} data-fps='25' src={'./video.mp4'}> */}
+				{/* <video width="1920" height="1080" id='video' ref='video' autoPlay={false} data-fps='30' src={'./720_30_vp8.webm'}> */}
+				{/* <video width="1920" height="1080" id='video' ref='video' autoPlay={false} data-fps='30' src={'./720_30_500_vp8.webm'}> */}
+				{/* <video width="1920" height="1080" id='video' ref='video' autoPlay={false} data-fps='25' src={'./720_25_vp8.webm'}> */}
+				<video width="1920" height="1080" id='video' ref='video' autoPlay={false} data-fps='25' src={'./720_25_500_vp8.webm'}>
+				{/* <video width="1920" height="1080" id='video' ref='video' autoPlay={false} data-fps='25' src={'./720_25_vp9.webm'}> */}
 				{/* <video id='video' ref='video' autoPlay={false} data-fps='25' src={'./25fps.mp4'}> */}
 				{/* <video id='video' ref='video' autoPlay={false} data-fps='29.97' src={'./29.97fps.mp4'}> */}
 				</video>
