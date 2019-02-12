@@ -89,6 +89,8 @@ class App extends Component {
 
 		// this.intervalIt();
 
+		// this.magiHack(video);
+
 		window.addEventListener('scroll', _.throttle(this.catchWindowScroll, this.playbackDelay));
 		// window.addEventListener('scroll', this.catchWindowScroll);
 
@@ -302,18 +304,25 @@ class App extends Component {
 	RAF() {
 	}
 
+	magiHack(vid) {
+		// pause video on load
+		vid.pause();
+		
+		// pause video on document scroll (stops autoplay once scroll started)
+		window.onscroll = function(){
+			vid.pause();
+		};
+
+		// refresh video frames on interval for smoother playback
+		setInterval(function(){
+			vid.currentTime = window.pageYOffset/280;
+		}, 40);
+	}
+
 	render() {
 		return <div className="App" >
 			<div className="video-wrapper">
-				{/* <video id='video' ref='video' autoPlay={false} data-fps='25' src={'./video.mp4'}> */}
-				{/* <video width="1920" height="1080" id='video' ref='video' autoPlay={false} data-fps='30' src={'./720_30_vp8.webm'}> */}
-				{/* <video width="1920" height="1080" id='video' ref='video' autoPlay={false} data-fps='30' src={'./720_30_500_vp8.webm'}> */}
-				{/* <video width="1920" height="1080" id='video' ref='video' autoPlay={false} data-fps='25' src={'./720_25_vp8.webm'}> */}
-				<video width="1920" height="1080" id='video' ref='video' autoPlay={false} data-fps='25' src={'./720_25_500_vp8.webm'}>
-				{/* <video width="1920" height="1080" id='video' ref='video' autoPlay={false} data-fps='25' src={'./720_25_vp9.webm'}> */}
-				{/* <video id='video' ref='video' autoPlay={false} data-fps='25' src={'./25fps.mp4'}> */}
-				{/* <video id='video' ref='video' autoPlay={false} data-fps='29.97' src={'./29.97fps.mp4'}> */}
-				</video>
+				<video width="1920" height="1080" id='video' ref='video' autoPlay={false} data-fps='30' src={'./720_30_500_vp8.webm'} />
 			</div>
 		</div>	;
 	}
