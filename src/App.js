@@ -51,6 +51,9 @@ class App extends Component {
 		this.basicMeasures = this.basicMeasures.bind(this);
 		this.onVideoReady = this.onVideoReady.bind(this);
 		this.intervalIt = this.intervalIt.bind(this);
+		this.permanentSetVideoPosition = this.permanentSetVideoPosition.bind(this);
+		this.RAF = this.RAF.bind(this);
+		this.initPosition = this.initPosition.bind(this);
 	}
 
 	componentDidMount() {
@@ -59,12 +62,26 @@ class App extends Component {
 		video.addEventListener('loadeddata', this.onVideoReady);
 	}
 
+	initPosition() {
+		const
+			{ refs } = this,
+			{ video } = refs,
+			{ scrollY, innerHeight, scrollHeight } = window,
+			realPercent = scrollY / innerHeight * 100,
+			scrollH = document.documentElement.scrollHeight,
+			scrollPercent = scrollY / (scrollH - innerHeight) * 100,
+			{ currentTime } = video;
+
+		this.videoSeconds = scrollPercent / 100;
+		this.prevPosition = this.videoSeconds;
+	}
+
 	onVideoReady(e) {
 		const
 			{ video } = this.refs,
-			{ dataset } = video,
+			{ dataset, src } = video,
 			{ fps } = Object.assign({}, dataset);
-		
+
 
 		this.videoLength = video.duration;
 		this.FPS = +fps;
@@ -79,13 +96,16 @@ class App extends Component {
 		console.log('this.playbackDelay', this.playbackDelay);
 		console.log('this.frameStep', this.frameStep);
 
-		this.V = new VideoFrame({
+		/* this.V = new VideoFrame({
 			id: 'video',
 			frameRate: this.FPS,
 			callback: function(response) {
 				console.log(response);
 			}
-		})
+		}) */
+
+		this.initPosition();
+		this.RAF();
 
 		// this.intervalIt();
 
@@ -236,10 +256,10 @@ class App extends Component {
 
 	catchWindowScroll(e) {
 
-		const
+		/* const
 			{ V } = this,
 			frame = V.get(),
-			SMPTE = V.toSMPTE();
+			SMPTE = V.toSMPTE(); */
 
 		// console.log('SMPTE', SMPTE);
 
@@ -264,7 +284,7 @@ class App extends Component {
 
 
 		/* set video position */
-		this.setVideoPosition();
+		// this.setVideoPosition();
 
 
 
@@ -302,7 +322,18 @@ class App extends Component {
 	}
 
 	RAF() {
+		window.requestAnimationFrame(this.permanentSetVideoPosition);
 	}
+
+	permanentSetVideoPosition(timestamp){
+		if (this.prevPosition !== this.videoSeconds) {
+			this.setVideoPosition();
+		}
+
+		this.prevPosition = this.videoSeconds;
+		window.requestAnimationFrame(this.permanentSetVideoPosition);
+	}
+	
 
 	magiHack(vid) {
 		// pause video on load
@@ -322,7 +353,7 @@ class App extends Component {
 	render() {
 		return <div className="App" >
 			<div className="video-wrapper">
-				<video width="1920" height="1080" id='video' ref='video' autoPlay={false} data-fps='30' src={'./720_30_500_vp8.webm'} />
+				<video width="1920" height="1080" id='video' ref='video' autoPlay={false} data-fps='25' src={'./720_25_800_h264.mp4'} />
 			</div>
 		</div>	;
 	}
