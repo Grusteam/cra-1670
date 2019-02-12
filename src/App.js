@@ -54,10 +54,13 @@ class App extends Component {
 		this.permanentSetVideoPosition = this.permanentSetVideoPosition.bind(this);
 		this.RAF = this.RAF.bind(this);
 		this.initPosition = this.initPosition.bind(this);
+		this.setVideoSize = this.setVideoSize.bind(this);
 	}
 
 	componentDidMount() {
 		const { video } = this.refs;
+
+		// this.setVideoSize();
 
 		video.addEventListener('loadeddata', this.onVideoReady);
 	}
@@ -72,8 +75,18 @@ class App extends Component {
 			scrollPercent = scrollY / (scrollH - innerHeight) * 100,
 			{ currentTime } = video;
 
+
 		this.videoSeconds = scrollPercent / 100;
 		this.prevPosition = this.videoSeconds;
+	}
+
+	setVideoSize() {
+		const
+			{ video } = this.refs,
+			{ innerWidth, innerHeight } = window;
+
+		video.setAttribute('width', innerWidth);
+		/* video.setAttribute('height', innerHeight); */
 	}
 
 	onVideoReady(e) {
@@ -111,8 +124,8 @@ class App extends Component {
 
 		// this.magiHack(video);
 
-		window.addEventListener('scroll', _.throttle(this.catchWindowScroll, this.playbackDelay));
-		// window.addEventListener('scroll', this.catchWindowScroll);
+		// window.addEventListener('scroll', _.throttle(this.catchWindowScroll, this.playbackDelay));
+		window.addEventListener('scroll', this.catchWindowScroll);
 
 		// this.frame = requestAnimationFrame(this.step);
 		// this.intervalSteps(this.frameStep);
@@ -351,9 +364,19 @@ class App extends Component {
 	}
 
 	render() {
+		console.log('render');
 		return <div className="App" >
 			<div className="video-wrapper">
-				<video width="1920" height="1080" id='video' ref='video' autoPlay={false} data-fps='25' src={'./720_25_800_h264.mp4'} />
+				<video
+					preload="auto"
+					id='video'
+					ref='video'
+					autoPlay={false}
+					data-fps='30'
+					src={'./720_30_1000_h264.mp4'}
+					/* src={'./1080_30_1000_h264.mp4'} */
+					/* src={'./720_25_800_h264.mp4'} */
+				/>
 			</div>
 		</div>	;
 	}
