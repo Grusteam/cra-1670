@@ -3,9 +3,9 @@ import logo from './logo.svg';
 import './App.css';
 
 const
-	_m = 'http://developer.mozilla.org/static/img/beast-404.ce38fcf80386.png',
-	_a = 'https://alterainvest.ru/upload/pic_alt3/21299__2e6f531c-6cc1-4457-9240-a94612e02c89/dog.png';
-
+	_a = 'https://alterainvest.ru/upload/pic_alt3/21299__2e6f531c-6cc1-4457-9240-a94612e02c89/dog.png',
+	_i = 'https://i.imgur.com/Qubd8YK.png';
+	
 class App extends Component {
 	constructor() {
 		super();
@@ -15,13 +15,13 @@ class App extends Component {
 	}
 	
 	componentDidMount() {
-		this.startDownload(_m);
+		this.startDownload(_a);
 	}
 	
 	startDownload(src) {
 		const downloadedImg = new Image;
 		
-		downloadedImg.crossOrigin = "Anonymous";
+		// downloadedImg.crossOrigin = "Anonymous";
 		downloadedImg.addEventListener("load", this.finishDownload, false);
 		downloadedImg.src = src;
 	}
