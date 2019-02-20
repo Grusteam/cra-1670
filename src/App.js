@@ -21,7 +21,7 @@ class App extends Component {
 	startDownload(src) {
 		const downloadedImg = new Image;
 		
-		// downloadedImg.crossOrigin = "Anonymous";
+		downloadedImg.crossOrigin = "Anonymous";
 		downloadedImg.addEventListener("load", this.finishDownload, false);
 		downloadedImg.src = src;
 	}
