@@ -374,6 +374,7 @@ class App extends Component {
 					autoPlay={false}
 					data-fps='30'
 					src={'./720_30_1000_h264.mp4'}
+					controls="true"
 					/* src={'./1080_30_1000_h264.mp4'} */
 					/* src={'./720_25_800_h264.mp4'} */
 				/>
