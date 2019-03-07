@@ -49,9 +49,10 @@ export const
 			y: rect.y
 		};
 	},
-	_console = (text = '', time = 0) => {
+	_console = (input = '', time = 0) => {
 		const
-			div = document.createElement('div'),
+			text = Array.isArray(input) ? input.join(', ') : `${input}`,
+			alreadyExist = dqsa0('#_console'),
 			body = dqsa0('body'),
 			styles = {
 				position: 'fixed',
@@ -60,27 +61,39 @@ export const
 				width: '100%',
 				height: 'auto',
 				zIndex: 99999,
-				backgroundColor: 'rgba(0, 0, 0, 0.3)'
+				backgroundColor: 'rgba(0, 0, 0, 0.3)',
+				color: 'white',
 			};
-		
-		/*text*/
-		div.innerHTML = `${text}`;
 			
-		for (const [key, value] of Object.entries(styles)) {
-			div.style[key] = value;
+		let domEl;
+			
+		if (alreadyExist) {
+			domEl = alreadyExist;
+		} else {
+			const blanc = document.createElement('div');
+			/*text*/
+			blanc.id = '_console';
+			
+			for (const [key, value] of Object.entries(styles)) {
+				blanc.style[key] = value;
+			}
+			
+			domEl = body.appendChild(blanc);
 		}
 			
-		const
-			inserted = body.appendChild(div);
+		domEl.innerHTML = `${text}`;
 		
 		if (time > 0) {
 			setTimeout(
 				() => {
-					inserted.remove();
+					domEl.remove();
 				},
 				time
 			);
 		}
+		
+		/*test*/
+		// console.log('text', text);
 	},
 	utils = {
 		dqsa,
